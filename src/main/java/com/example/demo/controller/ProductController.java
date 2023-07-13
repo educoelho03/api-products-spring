@@ -4,6 +4,7 @@ package com.example.demo.controller;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.RequestProductDTO;
 import com.example.demo.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class ProductController {
     }
 
 
-    @PostMapping("/add") // Inserrir elementos
+    @PostMapping("/add") // Inserir elementos
     public ResponseEntity registerProducts(@RequestBody @Valid RequestProductDTO data){
         Product newProduct = new Product(data);
 
@@ -44,11 +45,12 @@ public class ProductController {
             product.setPrice_in_cents(data.price_in_cents());
             return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException();
         }
     }
 
     @DeleteMapping("/del/{id}")
+    @Transactional
     public ResponseEntity deleteProduct(@PathVariable Long id){
         Optional<Product> optionalProduct = productRepository.findById(id);
         if(optionalProduct.isPresent()){
